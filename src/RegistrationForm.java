@@ -5,6 +5,18 @@ import java.awt.event.ActionListener;
 
 public class RegistrationForm extends JFrame {
     
+    // Store references to form fields for validation
+    private JTextField firstNameField;
+    private JTextField lastNameField;
+    private JComboBox<String> dayCombo;
+    private JComboBox<String> monthCombo;
+    private JComboBox<String> yearCombo;
+    private JTextField emailField;
+    private JTextField phoneField;
+    private JPasswordField passwordField;
+    private JPasswordField confirmPasswordField;
+    private JLabel submissionStatusLabel;
+    
     public RegistrationForm() {
         setTitle("Registration Page");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -90,8 +102,10 @@ public class RegistrationForm extends JFrame {
         gbc.gridy = 1;
         JPanel namePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
         namePanel.setOpaque(false);
-        namePanel.add(createTextField("First name"));
-        namePanel.add(createTextField("Last name"));
+        firstNameField = createTextField("First name");
+        lastNameField = createTextField("Last name");
+        namePanel.add(firstNameField);
+        namePanel.add(lastNameField);
         panel.add(namePanel, gbc);
         
         // Date of Birth Label
@@ -107,9 +121,12 @@ public class RegistrationForm extends JFrame {
         gbc.insets = new Insets(0, 10, 15, 10); // Normal spacing below
         JPanel dobPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         dobPanel.setOpaque(false);
-        dobPanel.add(createComboBox(getDays()));
-        dobPanel.add(createComboBox(getMonths()));
-        dobPanel.add(createComboBox(getYears()));
+        dayCombo = createComboBox(getDays());
+        monthCombo = createComboBox(getMonths());
+        yearCombo = createComboBox(getYears());
+        dobPanel.add(dayCombo);
+        dobPanel.add(monthCombo);
+        dobPanel.add(yearCombo);
         panel.add(dobPanel, gbc);
         
         // Reset insets for other fields
@@ -117,23 +134,36 @@ public class RegistrationForm extends JFrame {
         
         // Email
         gbc.gridy = 4;
-        panel.add(createTextField("Email"), gbc);
+        emailField = createTextField("Email");
+        panel.add(emailField, gbc);
         
         // Phone
         gbc.gridy = 5; 
-        panel.add(createTextField("Phone number"), gbc);
+        phoneField = createTextField("Phone number");
+        panel.add(phoneField, gbc);
         
         gbc.gridy = 6;
-        panel.add(createPasswordField("Password"), gbc);
+        passwordField = createPasswordField("Password");
+        panel.add(passwordField, gbc);
         
         // Confirm Password
         gbc.gridy = 7;
-        panel.add(createPasswordField("Confirm password"), gbc);
+        confirmPasswordField = createPasswordField("Confirm password");
+        panel.add(confirmPasswordField, gbc);
         
         // Sign Up Button
         gbc.gridy = 8;
         gbc.insets = new Insets(20, 10, 10, 10);
         panel.add(createButton("Sign Up"), gbc);
+        
+        // Submission status label
+        gbc.gridy = 9;
+        gbc.insets = new Insets(10, 10, 10, 10);
+        submissionStatusLabel = new JLabel("");
+        submissionStatusLabel.setForeground(new Color(0, 200, 0)); // Green color for success
+        submissionStatusLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        submissionStatusLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        panel.add(submissionStatusLabel, gbc);
         
         return panel;
     }
@@ -314,11 +344,143 @@ public class RegistrationForm extends JFrame {
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(RegistrationForm.this, "Registration submitted!");
+                validateAndSubmitForm();
             }
         });
         
         return button;
+    }
+    
+    private void validateAndSubmitForm() {
+        // Get all field values
+        String firstName = getFieldValue(firstNameField, "First name");
+        String lastName = getFieldValue(lastNameField, "Last name");
+        String day = (String) dayCombo.getSelectedItem();
+        String month = (String) monthCombo.getSelectedItem();
+        String year = (String) yearCombo.getSelectedItem();
+        String email = getFieldValue(emailField, "Email");
+        String phone = getFieldValue(phoneField, "Phone number");
+        String password = getPasswordValue(passwordField, "Password");
+        String confirmPassword = getPasswordValue(confirmPasswordField, "Confirm password");
+        
+        // Validation checks
+        if (isEmpty(firstName)) {
+            showError("Please enter your first name.");
+            return;
+        }
+        if (isEmpty(lastName)) {
+            showError("Please enter your last name.");
+            return;
+        }
+        if ("Day".equals(day) || "Month".equals(month) || "Year".equals(year)) {
+            showError("Please select your complete date of birth.");
+            return;
+        }
+        if (isEmpty(email)) {
+            showError("Please enter your email address.");
+            return;
+        }
+        if (!email.contains("@")) {
+            showError("Please enter a valid email address (must contain @).");
+            return;
+        }
+        if (isEmpty(phone)) {
+            showError("Please enter your phone number.");
+            return;
+        }
+        if (!isValidPhoneNumber(phone)) {
+            showError("Phone number must contain only numbers.");
+            return;
+        }
+        if (isEmpty(password)) {
+            showError("Please enter a password.");
+            return;
+        }
+        if (password.length() < 8) {
+            showError("Password must be at least 8 characters long.");
+            return;
+        }
+        if (isEmpty(confirmPassword)) {
+            showError("Please confirm your password.");
+            return;
+        }
+        if (!password.equals(confirmPassword)) {
+            showError("Passwords do not match. Please try again.");
+            return;
+        }
+        
+        // If all validations pass, show success message with submitted data
+        String submittedData = "Account Successfully Created!\n\n" +
+                             "Submitted Information:\n" +
+                             "Name: " + firstName + " " + lastName + "\n" +
+                             "Date of Birth: " + day + "/" + month + "/" + year + "\n" +
+                             "Email: " + email + "\n" +
+                             "Phone: " + phone + "\n" +
+                             "Password: " + "*".repeat(password.length()) + " (" + password.length() + " characters)";
+        
+        JOptionPane.showMessageDialog(this, submittedData, "Registration Successful", JOptionPane.INFORMATION_MESSAGE);
+        
+        // Clear the form after successful submission
+        clearForm();
+        
+        // Show submission status
+        submissionStatusLabel.setText("Form submitted successfully! You can register another account.");
+        
+        // Clear the status message after 5 seconds
+        Timer timer = new Timer(5000, e -> submissionStatusLabel.setText(""));
+        timer.setRepeats(false);
+        timer.start();
+    }
+    
+    private void clearForm() {
+        // Clear text fields by setting them back to placeholder text
+        clearTextField(firstNameField, "First name");
+        clearTextField(lastNameField, "Last name");
+        clearTextField(emailField, "Email");
+        clearTextField(phoneField, "Phone number");
+        
+        // Clear password fields
+        clearPasswordField(passwordField, "Password");
+        clearPasswordField(confirmPasswordField, "Confirm password");
+        
+        // Reset combo boxes to default selections
+        dayCombo.setSelectedIndex(0);
+        monthCombo.setSelectedIndex(0);
+        yearCombo.setSelectedIndex(0);
+    }
+    
+    private void clearTextField(JTextField field, String placeholder) {
+        field.setText(placeholder);
+        field.setForeground(Color.GRAY);
+    }
+    
+    private void clearPasswordField(JPasswordField field, String placeholder) {
+        field.setText(placeholder);
+        field.setForeground(Color.GRAY);
+        field.setEchoChar((char) 0); // Show placeholder text
+    }
+    
+    private String getFieldValue(JTextField field, String placeholder) {
+        String value = field.getText();
+        return placeholder.equals(value) ? "" : value;
+    }
+    
+    private String getPasswordValue(JPasswordField field, String placeholder) {
+        String value = String.valueOf(field.getPassword());
+        return placeholder.equals(value) ? "" : value;
+    }
+    
+    private boolean isEmpty(String value) {
+        return value == null || value.trim().isEmpty();
+    }
+    
+    private boolean isValidPhoneNumber(String phoneNumber) {
+        // Check if the phone number contains only digits
+        return phoneNumber.matches("\\d+");
+    }
+    
+    private void showError(String message) {
+        JOptionPane.showMessageDialog(this, message, "Validation Error", JOptionPane.ERROR_MESSAGE);
     }
     
     private String[] getDays() {
