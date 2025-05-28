@@ -94,33 +94,44 @@ public class RegistrationForm extends JFrame {
         namePanel.add(createTextField("Last name"));
         panel.add(namePanel, gbc);
         
-        // Date of Birth
+        // Date of Birth Label
         gbc.gridy = 2;
-        JPanel dobPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        gbc.insets = new Insets(20, 10, 5, 10); // More space above, less below
+        JLabel dobLabel = new JLabel("Date of Birth");
+        dobLabel.setForeground(Color.WHITE);
+        dobLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        panel.add(dobLabel, gbc);
+        
+        // Date of Birth dropdowns
+        gbc.gridy = 3;
+        gbc.insets = new Insets(0, 10, 15, 10); // Normal spacing below
+        JPanel dobPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         dobPanel.setOpaque(false);
         dobPanel.add(createComboBox(getDays()));
         dobPanel.add(createComboBox(getMonths()));
         dobPanel.add(createComboBox(getYears()));
         panel.add(dobPanel, gbc);
         
+        // Reset insets for other fields
+        gbc.insets = new Insets(10, 10, 10, 10);
+        
         // Email
-        gbc.gridy = 3;
+        gbc.gridy = 4;
         panel.add(createTextField("Email"), gbc);
         
         // Phone
-        gbc.gridy = 4;
+        gbc.gridy = 5; 
         panel.add(createTextField("Phone number"), gbc);
         
-        // Password
-        gbc.gridy = 5;
+        gbc.gridy = 6;
         panel.add(createPasswordField("Password"), gbc);
         
         // Confirm Password
-        gbc.gridy = 6;
+        gbc.gridy = 7;
         panel.add(createPasswordField("Confirm password"), gbc);
         
         // Sign Up Button
-        gbc.gridy = 7;
+        gbc.gridy = 8;
         gbc.insets = new Insets(20, 10, 10, 10);
         panel.add(createButton("Sign Up"), gbc);
         
@@ -141,11 +152,7 @@ public class RegistrationForm extends JFrame {
             
             @Override
             protected void paintBorder(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(new Color(100, 100, 100));
-                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
-                g2.dispose();
+                // No border - removed for cleaner appearance
             }
         };
         
@@ -194,11 +201,7 @@ public class RegistrationForm extends JFrame {
             
             @Override
             protected void paintBorder(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(new Color(100, 100, 100));
-                                                                                                                                                                                  g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
-                g2.dispose();                             
+                // No border - removed for cleaner appearance                             
             }                                                            
         };
                                                                                                                                               
@@ -237,10 +240,47 @@ public class RegistrationForm extends JFrame {
     }
     
     private JComboBox<String> createComboBox(String[] items) {
-        JComboBox<String> combo = new JComboBox<>(items);
-        combo.setBorder(BorderFactory.createLineBorder(new Color(100, 100, 100), 1, true));
-        combo.setBackground(new Color(60, 60, 60));
-        combo.setForeground(Color.WHITE);
+        JComboBox<String> combo = new JComboBox<String>(items) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                // Create clipping area for rounded rectangle
+                g2.setClip(new java.awt.geom.RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 20, 20));
+                g2.setColor(Color.WHITE);
+                g2.fillRect(0, 0, getWidth(), getHeight());
+                g2.dispose();
+                super.paintComponent(g);
+            }
+            
+            @Override
+            protected void paintBorder(Graphics g) {
+                // No border - removed for cleaner appearance
+            }
+        };
+        
+        combo.setOpaque(false);
+        combo.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        combo.setBackground(Color.WHITE);
+        combo.setForeground(Color.BLACK);
+        combo.setFont(new Font("Arial", Font.PLAIN, 14));
+        combo.setPreferredSize(new Dimension(120, 35));
+        
+        // Set the renderer to have white background
+        combo.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                    boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (!isSelected) {
+                    setBackground(Color.WHITE);
+                    setForeground(Color.BLACK);
+                }
+                return this;
+            }
+        });
+        
         return combo;
     }
     
