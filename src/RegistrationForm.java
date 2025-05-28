@@ -23,23 +23,18 @@ public class RegistrationForm extends JFrame {
         setSize(1200, 800);
         setLocationRelativeTo(null);
         
-        // Create main panel with gradient background
+        // Load background image
+        ImageIcon bgImage = new ImageIcon("background.png");
+        Image image = bgImage.getImage();
+
         JPanel mainPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                Graphics2D g2d = (Graphics2D) g;
-                g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-                
-                // Create gradient from dark blue to purple
-                GradientPaint gradient = new GradientPaint(
-                    0, 0, new Color(25, 25, 80),
-                    getWidth(), getHeight(), new Color(60, 40, 120)
-                );
-                g2d.setPaint(gradient);
-                g2d.fillRect(0, 0, getWidth(), getHeight());
+                g.drawImage(image, 0, 0, getWidth(), getHeight(), this);
             }
         };
+
         mainPanel.setLayout(new BorderLayout());
         
         // Left side with logo and title
@@ -48,19 +43,21 @@ public class RegistrationForm extends JFrame {
         leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
         leftPanel.setBorder(BorderFactory.createEmptyBorder(100, 100, 100, 50));
         
-        JLabel logoLabel = new JLabel("logo");
-        logoLabel.setFont(new Font("Arial", Font.BOLD, 72));
-        logoLabel.setForeground(Color.WHITE);
+        ImageIcon rawIcon = new ImageIcon("logo.png");
+        Image scaledImage = rawIcon.getImage().getScaledInstance(350, 350, Image.SCALE_SMOOTH);
+        JLabel logoLabel = new JLabel(new ImageIcon(scaledImage));
         logoLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
         
-        JLabel titleLabel = new JLabel("Registration Page");
-        titleLabel.setFont(new Font("Arial", Font.PLAIN, 32));
-        titleLabel.setForeground(Color.WHITE);
+        ImageIcon titleIcon = new ImageIcon("RegistrationPage.png");
+        Image scaledTitle = titleIcon.getImage().getScaledInstance(300, 300, Image.SCALE_SMOOTH); // adjust size as needed
+        JLabel titleLabel = new JLabel(new ImageIcon(scaledTitle));
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
         
         leftPanel.add(Box.createVerticalGlue());
         leftPanel.add(logoLabel);
-        leftPanel.add(Box.createVerticalStrut(30));
+        leftPanel.add(Box.createVerticalStrut(-200));
         leftPanel.add(titleLabel);
         leftPanel.add(Box.createVerticalGlue());
         
