@@ -285,16 +285,31 @@ public class RegistrationForm extends JFrame {
     }
     
     private JButton createButton(String text) {
-        JButton button = new JButton(text);
-        button.setBackground(new Color(70, 130, 180));
+        JButton button = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(getBackground());
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+                super.paintComponent(g);
+                g2.dispose();
+            }
+            
+            @Override
+            protected void paintBorder(Graphics g) {
+                // No border for clean appearance
+            }
+        };
+        
+        button.setBackground(new Color(60, 40, 120)); // Purple background matching app gradient
         button.setForeground(Color.WHITE);
         button.setFocusPainted(false);
-        button.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(70, 130, 180), 1, true),
-            BorderFactory.createEmptyBorder(12, 24, 12, 24)
-        ));
+        button.setBorder(BorderFactory.createEmptyBorder(15, 30, 15, 30));
         button.setFont(new Font("Arial", Font.BOLD, 16));
         button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        button.setOpaque(false);
+        button.setContentAreaFilled(false);
         
         button.addActionListener(new ActionListener() {
             @Override
